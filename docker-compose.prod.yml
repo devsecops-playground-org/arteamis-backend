@@ -1,0 +1,27 @@
+# Shipped to the VM by the platform's deploy-vm workflow as docker-compose.yml.
+#
+# IMAGE is written by CI into image.env and is a digest, not a tag, so the VM
+# runs exactly the artefact that was scanned and signed. Application secrets come
+# from .env on the host — they are never in this repository.
+name: arteamis
+
+services:
+  backend:
+    image: ${IMAGE}
+    container_name: arteamis-backend
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      APP_ENV: production
+    ports:
+      - "8000:8000"
+    networks: [arteamis_net]
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  arteamis_net:
+    external: true

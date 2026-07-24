@@ -1,0 +1,31 @@
+project: arteamis
+component: backend
+type: service
+runtime: python
+package_manager: uv
+
+test:
+  command: uv run pytest --cov=app --cov-report=json --cov-report=term-missing
+  lint: uv run ruff check .
+  coverage_min: 75
+  ai_review: true
+
+build:
+  dockerfile: Dockerfile
+  context: .
+
+deploy:
+  target: vm
+  service: backend
+  container_name: arteamis-backend
+  compose_file: docker-compose.prod.yml
+  health:
+    path: /health
+    port: 8000
+  environments:
+    staging:
+      branch: deploy/staging
+      url: https://api.staging.arteamis.dev
+    production:
+      branch: deploy/prod
+      url: https://api.arteamis.dev
